@@ -22,3 +22,6 @@
 
 # Resources
 1. Hall, David L. _Mathematical Techniques in Multisensor Data Fusion_ Boston: Artech House 2004. Print
+2. RLabbe Textbook ([link](https://github.com/rlabbe/Kalman-and-Bayesian-Filters-in-Python))
+3. Mathworks.com ([link](https://www.mathworks.com/videos/series/understanding-kalman-filters.html))
+4. Bzarg.com ([link](http://www.bzarg.com/p/how-a-kalman-filter-works-in-pictures/))
