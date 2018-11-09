@@ -26,14 +26,25 @@ Charlie
   - For next class: Finish writing out scaffolding and take a stab at stuff
 - Class 22 (F 11/16)
   - Write more sections of example and corner Paul
+  - Update schedule
+  - For next time: Get some sweet R&R
   
 THANKSGIVING
 
 - Class 23 (T 11/27)
+  - Start teaching notebook: Rough draft, have someone look, revise
+  - Alongside notebook: Introductory scaffolding for Kalmin Filter
 - Class 24 (F 11/30)
+  - Take dataset of IMU, encoder, ceiling
 - Class 25 (T 12/4)
+  - Continue teaching notebook
 - Class 26 (F 12/7)
+- Finals week
+  - Slop time wooo
 - Final Demo
+
+- Make teaching notebook: Rough draft, have someone look, revise
+- Take dataset of IMU, encoder, ceiling
 
 # Deliverables
 - Some form of learning materials designed to show students why kalman filters are useful, how they work, and when to implement them. Also provide further resources in an accessible manner. Some example code for basic implementation OR simple example. (google docs colab ipython notebook structured like in-class materials) (problem set and solution?!?!?!)
