@@ -25,3 +25,4 @@ Kalman filters are a useful algorithm in robotics for
 2. RLabbe Textbook ([link](https://github.com/rlabbe/Kalman-and-Bayesian-Filters-in-Python))
 3. Mathworks.com ([link](https://www.mathworks.com/videos/series/understanding-kalman-filters.html))
 4. Bzarg.com ([link](http://www.bzarg.com/p/how-a-kalman-filter-works-in-pictures/))
+5. Probabilistic Robotics ([link](https://docs.ufpr.br/~danielsantos/ProbabilisticRobotics.pdf))
