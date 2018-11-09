@@ -12,6 +12,10 @@ Charlie
 - well scaffolded project
 - focus on core conceptual understanding
 
+# Deliverables
+- Some form of learning materials designed to show students why kalman filters are useful, how they work, and when to implement them. Also provide further resources in an accessible manner. Some example code for basic implementation OR simple example. (google docs colab ipython notebook structured like in-class materials) (problem set and solution?!?!?!)
+- Simple robot localizing: Drive square, straight line, spin in place and determine error. Compare with ceiling localization as ground truth. Compare with odometry localizing and encoders (separately) as baseline comparison.
+
 # Project Schedule
 ## Week 1
 - Class 20 (F 11/9)
@@ -45,10 +49,6 @@ THANKSGIVING
 
 - Make teaching notebook: Rough draft, have someone look, revise
 - Take dataset of IMU, encoder, ceiling
-
-# Deliverables
-- Some form of learning materials designed to show students why kalman filters are useful, how they work, and when to implement them. Also provide further resources in an accessible manner. Some example code for basic implementation OR simple example. (google docs colab ipython notebook structured like in-class materials) (problem set and solution?!?!?!)
-- Simple robot localizing: Drive square, straight line, spin in place and determine error. Compare with ceiling localization as ground truth. Compare with odometry localizing and encoders (separately) as baseline comparison.
 
 # Resources
 1. Hall, David L. _Mathematical Techniques in Multisensor Data Fusion_ Boston: Artech House 2004. Print
