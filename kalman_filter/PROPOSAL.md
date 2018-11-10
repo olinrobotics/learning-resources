@@ -15,6 +15,7 @@ Kalman filters are a class of algorithms used to filter noisy signals, generate 
 # Deliverables
 - Learning materials designed to show students why kalman filters are useful, how they work, and when to implement them, as well as provide further resources in an accessible manner. Some example code for basic implementation OR simple example. 
   - Google docs ipython notebook with separate steps for each aspect of the filter
+  - Matlab notebook with separate steps for each aspect of the filter
   - Build a problem set about kalman filters with a solutions file
 - Simple robot localizing: Drive square, straight line, spin in place and determine error. Compare with ceiling localization as ground truth. Compare with odometry localizing and encoders (separately) as baseline comparison.
 
