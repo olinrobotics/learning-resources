@@ -17,8 +17,12 @@ of practical Kalman filter application._
 
 ## Papers
 
-[2] Sorenson, H. W., "Least Squares Estimation: From Gauss to Kalman," _IEEE Spectrum_, 1970, pp. 63-68
-- _Provides historical background behind least squares and kalman filters.
+[3] Sorenson, H. W., "Least Squares Estimation: From Gauss to Kalman," _IEEE Spectrum_, 1970, pp. 63-68
+- _Provides historical background behind least squares and kalman filters._  
+
+[4] Faragher, R., "Understanding the basis of the Kalman filter via a simple and intuitive derivation"
+_IEEE Signal Process. Mag._, 2012, 29, pp. 128-132  
+- _Text cited by bzarg.com article [5]._
 
 ## Websites  
 
