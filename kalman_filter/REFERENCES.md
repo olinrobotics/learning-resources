@@ -25,6 +25,7 @@ _IEEE Signal Process. Mag._, 2012, 29, pp. 128-132
 - _Text cited by bzarg.com article [5]._
 
 ## Websites  
-
+[5] Ulusoy, Melda. “Understanding Kalman Filters.” MathWorks Video & Webinar Series, www.mathworks.com/videos/series/understanding-kalman-filters.html.  
+- _7-part video series about Kalman filters. Approaches them from the perspective of block diagrams and controls, unlike some of the other sources. Discusses Kalman filters from the perspective of state observers/estimators. Uses some terms from Bayesian Inference, and explicitly addresses Kalman filters as stochastic systems.
 
 # Codebases 
