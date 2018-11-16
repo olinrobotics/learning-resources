@@ -20,7 +20,8 @@ position.
 ### Camera Calibration
 We calibrated the Raspberry Pi camera following the normal instructions for the `camera_calibration` package ([link](http://wiki.ros.org/camera_calibration)).
 This required restarting the robot such that the camera was not pointed at bright lights, making it's self-calibration too dark to see.
-This program saves a .yaml file with the calibrated camera parameters. This .yaml file is saved in this repo.
+This program saves a .yaml file with the calibrated camera parameters. This .yaml file is saved in this repo.  
+<img src="https://github.com/olinrobotics/learning-resources/blob/kalman/kalman_filter/images/camera_calib.jpg" width=250/>
 
 ### April Tag Calibration
 The software setup uses two files from Paul's repositories:  
