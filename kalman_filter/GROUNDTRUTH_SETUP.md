@@ -21,7 +21,7 @@ position.
 We calibrated the Raspberry Pi camera following the normal instructions for the `camera_calibration` package ([link](http://wiki.ros.org/camera_calibration)).
 
 From above, run this in the terminal:
-~rosrun camera_calibration cameracalibrator.py --size 9x6 --square 0.108 image:=/camera/image_raw camera:=/camera~
+`rosrun camera_calibration cameracalibrator.py --size 9x6 --square 0.108 image:=/camera/image_raw camera:=/camera`
 If something goes wrong, check the names of the image topics (image:=) and the size of the calibration grid (--size).
 
 This required restarting the robot such that the camera was not pointed at bright lights, making it's self-calibration too dark to see.
@@ -30,7 +30,7 @@ This program saves a .yaml file with the calibrated camera parameters. This .yam
 <img src="https://github.com/olinrobotics/learning-resources/blob/kalman/kalman_filter/images/camera_calib.jpg" width=250/>
 
 You can also run the april tag scripts like this:
-~rosrun my_pf star_center_position_revised.py _pose_correction:=0.37954481972790866 _phase_offset:=0.5509349120120457~
+`rosrun my_pf star_center_position_revised.py _pose_correction:=0.37954481972790866 _phase_offset:=0.5509349120120457`
 where the pose correction and phase offset are calibrations taken with Paul. We'll include this in the april_tags.launch file next time.
 
 ### April Tag Calibration
