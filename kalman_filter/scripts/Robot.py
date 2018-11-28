@@ -13,6 +13,7 @@ import csv                              # CSV file interaction library
 import rospy                            # Python ROS library
 from nav_msgs.msg import Odometry       # Encoder message type
 from geometry_msgs.msg import Twist     # Robot command message type
+from geometry_msgs.msg import PoseStamped
 from tf.transformations import euler_from_quaternion
 
 class Robot():
@@ -25,7 +26,7 @@ class Robot():
 
         self.encoder_sub = rospy.Subscriber("/odom", Odometry, self.encoder_cb)
         self.command_sub = rospy.Subscriber("/cmd_vel", Twist, self.command_cb)
-        #self.truth_sub = rospy.Subscriber("/TODO", Twist, self.truth_cb)
+        self.truth_sub = rospy.Subscriber("/STAR_pose_continuous", PoseStamped, self.truth_cb)
         # TODO: imu
         # TODO: laser
 
@@ -33,6 +34,7 @@ class Robot():
         self.encoder_prev = None
         self.encoder_pos = None
         self.command_curr = Twist((0,0,0),(0,0,0))
+        self.truth_curr = None
 
         # Initialize kalman filter
 
@@ -42,7 +44,7 @@ class Robot():
         self.data = [['Encoder X', 'Encoder Y', 'Encoder Theta']]
 
         # Runtime checks
-        self.init_encoder()
+        self.init_subscribers()
         return
 
     def encoder_cb(self, msg):
@@ -83,14 +85,26 @@ class Robot():
 
     def record_data(self):
         # Create writeable data array of position data from
-        x = self.encoder_pos.pose.pose.position.x
-        y = self.encoder_pos.pose.pose.position.y
-        theta = euler_from_quaternion(quaternion = (
+
+        # Record encoder data
+        x_0 = self.encoder_pos.pose.pose.position.x
+        y_0 = self.encoder_pos.pose.pose.position.y
+        theta_0 = euler_from_quaternion(quaternion = (
                                       self.encoder_pos.pose.pose.orientation.x,
                                       self.encoder_pos.pose.pose.orientation.y,
                                       self.encoder_pos.pose.pose.orientation.z,
                                       self.encoder_pos.pose.pose.orientation.w))
-        self.data.append([x, y, theta[2]])
+
+
+        # Record ground truth data
+        x_1 = self.truth_curr.pose.position.x
+        y_1= self.truth_curr.pose.position.y
+        theta_1 = euler_from_quaternion(quaternion = (
+                                      self.truth_curr.pose.orientation.x,
+                                      self.truth_curr.pose.orientation.y,
+                                      self.truth_curr.pose.orientation.z,
+                                      self.truth_curr.pose.orientation.w))
+        self.data.append([x_0, y_0, theta_0, x_1, y_1, theta_1])
 
     def write_data(self, f, data):
         # Opens given csv file, writes data
@@ -98,6 +112,28 @@ class Robot():
         with file_to_write:
             writer = csv.writer(file_to_write)
             writer.writerows(data)
+
+    def init_subscribers(self):
+        # Halt until receiving messages from all subscribers
+        i = [False, False]
+        while not rospy.is_shutdown():
+
+            # Check for encoder data
+            if not self.encoder_pos == None:
+                i[0] = True
+                rospy.loginfo_throttle(10, "(10s) Received encoder data")
+            else:
+                rospy.logwarn_throttle(10, "(10s) Waiting for encoder data")
+
+            # Check for ground truth data
+            if not self.truth_curr  == None:
+                i[1] = True
+                rospy.loginfo_throttle(10, "(10s) Received ground truth data")
+            else:
+                rospy.logwarn_throttle(10, "(10s) Waiting for ground truth data")
+
+            if sum(i) == 2:
+                break
 
     def init_encoder(self):
         # Halt until receiving odometry messages from encoders
