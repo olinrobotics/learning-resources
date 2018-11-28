@@ -4,10 +4,6 @@ TODO:
 """
 from collections import namedtuple
 
-#helper code:
-gaussian = namedtuple('Gaussian', ['mean', 'variance'])
-gaussian.__repr__ = lambda s: '𝒩(μ={:.3f}, 𝜎²={:.3f})'.format(s[0], s[1])
-
 # Pseudocode
 class KalmanFilter():
     @staticmethod
@@ -17,8 +13,13 @@ class KalmanFilter():
         return gaussian(mean, variance)
 
     def __init__(self, prior):
-        #prior should be gaussian(0,(length_track*1.)**2), which gives basically even distribution of all places within the track, which is centered around 0. This is because with Gaussians ~99.7% of values fall within  ±3𝜎  of the mean.
-        self.prior = gaussian(0,1) """INCOMPLETE STATEMENT"""
+        """All following measurements will be in relation to the starting point: The initial guess of where you are is extremely certain that it is where you started (a gaussian with a """
+        #helper code for gaussians:
+        gaussian = namedtuple('Gaussian', ['mean', 'variance'])
+        gaussian.__repr__ = lambda s: '𝒩(μ={:.3f}, 𝜎²={:.3f})'.format(s[0], s[1])
+
+        #setup:
+        self.prior = gaussian(0,.001)
 
     def predict(self,prior,movement):
         # uses old position (previous posterior) and adds expected movement, with uncertainty
@@ -51,7 +52,7 @@ class KalmanFilter():
         return posterior
     """
 
-    def step(self, x, dx, R=R_0, Q=Q_0):
+    def step(self, z, dx, R=.001, Q=.001):
         measurement = gaussian(z,R)
         movement = gaussian(dx,Q)
 

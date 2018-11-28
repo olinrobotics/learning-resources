@@ -3,9 +3,9 @@ test whether predict and update work appropriately with given error values
 """
 
 import unittest
-from 1d_neato_kf import KalmanFilter
+from neato_1d_kf import KalmanFilter
 
-class KalmanFilter_Test(object):
+class KalmanFilter_Test(unittest.TestCase):
     @staticmethod
     def update(prior, measurement):
         x, P = prior        # mean and variance of prior
@@ -22,14 +22,24 @@ class KalmanFilter_Test(object):
 
     def setUp(self):
         self.KalmanFilter = KalmanFilter()
+        #helper code for gaussians:
+        gaussian = namedtuple('Gaussian', ['mean', 'variance'])
+        gaussian.__repr__ = lambda s: '𝒩(μ={:.3f}, 𝜎²={:.3f})'.format(s[0], s[1])
 
-    def predict_test(self):
+    def predict_test_no_movement(self):
         z = 0
-        dx = 1
+        dx = 0
         R = 1
         Q = 1
-        prior = self.KalmanFilter()
+
+        measurement = gaussian(z,R)
+        movement = gaussian(dx,0)
+
+        prior = gaussian(0,.001)
+        new_prior = self.KalmanFilter.predict(prior,movement)
+
+        self.assertEqual(new_prior.mean,prior.mean)
         self.assertEqual()
 
 if __name__=='__main__':
-    unnittest.main()
+    unittest.main()
