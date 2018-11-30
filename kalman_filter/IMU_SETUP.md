@@ -18,3 +18,4 @@ ssh into pi@192.168.17.209  No Name Jane 3
 ~pi/CompRoboPrep/PiSetupFiles/imu_redirect.py, comment out imu redirect  
 port 7778  
 Robot 
+https://github.com/xiaozhengxu/razor_imu_9dof
