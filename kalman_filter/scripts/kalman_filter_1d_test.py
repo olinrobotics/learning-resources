@@ -4,8 +4,9 @@ test whether predict and update work appropriately with random integers for mean
 
 import unittest
 from collections import namedtuple
-from neato_1d_kf import KalmanFilter
+from kalman_filter_1d import KalmanFilter
 import random
+#from Gaussian import Gaussian
 
 
 Gaussian = namedtuple('Gaussian', ['mean', 'variance'])

@@ -1,8 +1,10 @@
 """
 TODO:
 - Decide format of prior passed to KalmanFilter()
+- FIX GAUSSIAN CLASS
 """
 from collections import namedtuple
+#from Gaussian import Gaussian
 
 Gaussian = namedtuple('Gaussian', ['mean', 'variance'])
 Gaussian.__repr__ = lambda s: '𝒩(μ={:.3f}, 𝜎²={:.3f})'.format(s[0], s[1]) #Not necessary-- prints fancy symbols insteand of "mean" and "variance". Pretty cute though.
