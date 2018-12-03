@@ -34,11 +34,16 @@ You can also run the april tag scripts like this:
 where the pose correction and phase offset are calibrations taken with Paul. We'll include this in the april_tags.launch file next time.
 
 ### April Tag Calibration
-The software setup uses two files from Paul's repositories:  
+The software setup uses two files from Paul's repositories and the ROS apriltags package:
 ```
 star_center_position_revised.py
 calibrate_star_pose_revised.py
 ```
+
+1. Go to https://github.com/RIVeR-Lab/apriltags_ros and follow the installation instructions.
+
+2. Run the `star_center_position_revised.py` 
+
 `star_center_position_revised.py` has a class MarkerProcessor() that manually adds a set of marker locators that represent the
 ids and relative locations of the april tags in the room. Each ceiling tile is roughly 2 ft * 2 ft. We re-built the mapping of 
 the ceiling tiles to match our new layout. The resulting modified files are stored in this repository. We then followed the
