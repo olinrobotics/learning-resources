@@ -153,10 +153,10 @@ class MarkerProcessor(object):
             STAR_pose.header.stamp = msg.header.stamp
             self.continuous_pose.publish(STAR_pose)
         except Exception as inst:
-            print "error is", inst
+            print("error is", inst)
 
     def process_markers(self, msg):
-        print "got a marker"
+        print("got a marker")
         for marker in msg.detections:
             # do some filtering basd on prior knowledge
             # we know the approximate z coordinate and that all angles but yaw should be close to zero
@@ -165,19 +165,19 @@ class MarkerProcessor(object):
                                                   marker.pose.pose.orientation.z,
                                                   marker.pose.pose.orientation.w))
             angle_diffs = TransformHelpers.angle_diff(euler_angles[0],pi), TransformHelpers.angle_diff(euler_angles[1],0)
-            print angle_diffs, marker.pose.pose.position.z
+            print(angle_diffs, marker.pose.pose.position.z)
             if (marker.id in self.marker_locators and
                 3.0 <= marker.pose.pose.position.z <= 3.6 and
                 fabs(angle_diffs[0]) <= .4 and
                 fabs(angle_diffs[1]) <= .4):
-                print "FOUND IT!"
+                print("FOUND IT!")
                 locator = self.marker_locators[marker.id]
                 xy_yaw = list(locator.get_camera_position(marker))
                 if self.is_flipped:
-                    print "WE ARE FLIPPED!!!"
+                    print("WE ARE FLIPPED!!!")
                     xy_yaw[2] += pi
-                print self.pose_correction
-                print self.phase_offset
+                print(self.pose_correction)
+                print(self.phase_offset)
                 xy_yaw[0] += self.pose_correction*cos(xy_yaw[2]+self.phase_offset)
                 xy_yaw[1] += self.pose_correction*sin(xy_yaw[2]+self.phase_offset)
 
@@ -198,9 +198,9 @@ class MarkerProcessor(object):
         try:
             self.tf_listener.waitForTransform("odom","base_link",rospy.Time(),rospy.Duration(1.0))
         except Exception as inst:
-            print "whoops", inst
+            print("whoops", inst)
             return
-        print "got transform"
+        print("got transform")
         self.odom_to_STAR = self.tf_listener.transformPose("odom", p)
         (self.translation, self.rotation) = TransformHelpers.convert_pose_inverse_transform(self.odom_to_STAR.pose)
 
@@ -209,7 +209,7 @@ class MarkerProcessor(object):
             This is necessary so things like move_base can work properly. """
         if not(hasattr(self,'translation') and hasattr(self,'rotation')):
             return
-        print "rotation", self.rotation
+        print("rotation", self.rotation)
         self.inverted_rotation = quaternion_inverse(self.rotation)
 
         translation = np.zeros((4,1))
@@ -220,8 +220,8 @@ class MarkerProcessor(object):
 
         transformed_translation = quaternion_matrix(self.inverted_rotation).dot(translation)
 
-        print "inverted rotation", self.inverted_rotation
-        print "transformed translation", transformed_translation
+        print("inverted rotation", self.inverted_rotation)
+        print("transformed translation", transformed_translation)
         #self.tf_broadcaster.sendTransform(self.translation, self.rotation, rospy.get_rostime(), self.odom_frame_name, "STAR")
         self.tf_broadcaster.sendTransform(transformed_translation[:-1], self.inverted_rotation, rospy.get_rostime(), "STAR", self.odom_frame_name)
 

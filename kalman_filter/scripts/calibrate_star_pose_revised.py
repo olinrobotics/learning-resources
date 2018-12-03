@@ -111,7 +111,7 @@ class CalibrateStarPose(object):
                 xc,yc,R,residu = leastsq_circle(np.asarray(xs),np.asarray(ys))
                 phase_offset = self.get_phase_offset(xc,yc,R,xs,ys,yaws)
 
-                print "rosrun my_pf star_center_position_revised.py _pose_correction:="+str(R) + " _phase_offset:="+str(phase_offset)
+                print("rosrun my_pf star_center_position_revised.py _pose_correction:="+str(R) + " _phase_offset:="+str(phase_offset))
                 plot_data_circle(xs,ys,xc,yc,R)
 
             plt.pause(.05)
