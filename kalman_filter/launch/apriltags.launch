@@ -1,6 +1,6 @@
 <launch>
   <node pkg="image_proc" type="image_proc" name="image_projector" ns="camera"/>
-  <node pkg="kalman_filter" type="star_center_position_revised.py" name="star_center_positioning_node"/>
+  <node pkg="kalman_filter" type="star_center_position_revised.py" name="star_center_positioning_node" output="screen"/>
   <node pkg="apriltags_ros" type="apriltag_detector_node" name="apriltag_detector" ns="camera">
     <!-- Remap topic required by the node to custom topics -->
     <remap from="image_rect" to="image_rect" />
