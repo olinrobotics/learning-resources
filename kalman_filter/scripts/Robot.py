@@ -15,6 +15,9 @@ from nav_msgs.msg import Odometry       # Encoder message type
 from geometry_msgs.msg import Twist     # Robot command message type
 from tf.transformations import euler_from_quaternion
 
+Gaussian = namedtuple('Gaussian', ['mean', 'variance'])
+Gaussian.__repr__ = lambda s: '𝒩(μ={:.3f}, 𝜎²={:.3f})'.format(s[0], s[1]) #Not necessary-- prints fancy symbols insteand of "mean" and "variance". Pretty cute though.
+
 class Robot():
 
     def __init__(self, f='temp'):
