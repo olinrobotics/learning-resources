@@ -26,7 +26,7 @@ If something goes wrong, check the names of the image topics (image:=) and the s
 
 This required restarting the robot such that the camera was not pointed at bright lights, making it's self-calibration too dark to see.
 
-This program saves a .yaml file with the calibrated camera parameters. This .yaml file is saved in this repo.  
+This program saves a .yaml file with the calibrated camera parameters. This .yaml file is saved by default in `comprobo18/gscam/examples/camera_parameters.yaml`.
 <img src="https://github.com/olinrobotics/learning-resources/blob/kalman/kalman_filter/images/camera_calib.jpg" width=250/>
 
 You can also run the april tag scripts like this:
