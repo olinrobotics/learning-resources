@@ -1,2 +1,2 @@
-kalman_filter/data/*
+kalman_filter/data/*.csv
 *.pyc
