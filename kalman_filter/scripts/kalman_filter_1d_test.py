@@ -6,11 +6,11 @@ import unittest
 from collections import namedtuple
 from kalman_filter_1d import KalmanFilter
 import random
-#from Gaussian import Gaussian
+from Gaussian import Gaussian
 
 
-Gaussian = namedtuple('Gaussian', ['mean', 'variance'])
-Gaussian.__repr__ = lambda s: '𝒩(μ={:.3f}, 𝜎²={:.3f})'.format(s[0], s[1]) #Not necessary-- prints fancy symbols insteand of "mean" and "variance". Pretty cute though.
+#Gaussian = namedtuple('Gaussian', ['mean', 'variance'])
+#Gaussian.__repr__ = lambda s: 'Gaussian(mean={:.3f}, variance={:.3f})'.format(s[0], s[1]) #Not necessary-- prints fancy symbols insteand of "mean" and "variance". Pretty cute though.
 
 class KalmanFilter_Test(unittest.TestCase):
     @staticmethod
@@ -18,7 +18,7 @@ class KalmanFilter_Test(unittest.TestCase):
         """Alternate method for gaussian multiplication to compare to one used in KalmanFilter"""
         x, P = prior.mean, prior.variance        # mean and variance of prior
         z, R = measurement.mean, measurement.variance  # mean and variance of measurement
-        
+
         y = z - x        # residual (diff between prior and measurement)
         K = P / (P + R)  # Kalman gain (calculated from Gaussian math -- weights new x based the difference in the trustworthiness of the prior and measurement)
 
@@ -54,7 +54,8 @@ class KalmanFilter_Test(unittest.TestCase):
 
         check_prior = KalmanFilter_Test.update(prior,measurement)
 
-        self.assertAlmostEqual(new_prior,check_prior)
+        self.assertAlmostEqual(new_prior.mean,check_prior.mean)
+        self.assertAlmostEqual(new_prior.variance,check_prior.variance)
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,13 +1,16 @@
+#!/usr/bin/env python
+
 """
 TODO:
 - Decide format of prior passed to KalmanFilter()
 - FIX GAUSSIAN CLASS
 """
-from collections import namedtuple
-#from Gaussian import Gaussian
 
-Gaussian = namedtuple('Gaussian', ['mean', 'variance'])
-Gaussian.__repr__ = lambda s: '𝒩(μ={:.3f}, 𝜎²={:.3f})'.format(s[0], s[1]) #Not necessary-- prints fancy symbols insteand of "mean" and "variance". Pretty cute though.
+from collections import namedtuple
+from Gaussian import Gaussian
+
+#Gaussian = namedtuple('Gaussian', ['mean', 'variance'])
+#Gaussian.__repr__ = lambda s: 'Gaussian(mean={:.3f}, variance={:.3f})'.format(s[0], s[1]) #Not necessary-- prints fancy symbols insteand of "mean" and "variance". Pretty cute though.
 
 # Pseudocode
 class KalmanFilter():
@@ -27,7 +30,7 @@ class KalmanFilter():
         # uses old position (previous posterior) and adds expected movement, with uncertainty
         x, P = prior.mean, prior.variance   # Unpack posterior Gaussian
         dx, Q = movement.mean, movement.variance    # Unpack movement Gaussian
-        
+
         x = x + dx  # Update mean w/ predicted movement, no uncertainty
         P = P + Q   # Combine variances, decrease certainty
 
@@ -43,7 +46,7 @@ class KalmanFilter():
     def update(prior, measurement):
         x, P = prior        # mean and variance of prior
         z, R = measurement  # mean and variance of measurement
-        
+
         y = z - x        # residual (diff between prior and measurement)
         K = P / (P + R)  # Kalman gain (calculated from Gaussian math -- weights new x based the difference in the trustworthiness of the prior and measurement)
 
@@ -62,12 +65,3 @@ class KalmanFilter():
         posterior = update(new_prior,measurement)
         self.prior = posterior
         return posterior
-
-    
-
-
-
-
-
-    
-    
