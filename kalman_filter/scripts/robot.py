@@ -37,7 +37,7 @@ class Robot():
     def __init__(self, f='temp', log_data=False):
 
         # ROS Constructs
-        rospy.init_node("Robot")
+        rospy.init_node("robot")
         self.rate = rospy.Rate(2)
 
         self.encoder_sub = rospy.Subscriber("/odom", Odometry, self.encoder_cb)
@@ -63,9 +63,10 @@ class Robot():
             rospy.loginfo("Saving data!")
             self.file_name = self.check_file(f)
             self.write_to_file = open(self.file_name, 'w')
-            self.data = [['Ground Truth X', 'Ground Truth Y', 'Ground Truth Theta',
+            self.data = [['Time',
+                          'Ground Truth X', 'Ground Truth Y', 'Ground Truth Theta',
                           'Encoder X', 'Encoder Y', 'Encoder Theta',
-                          'IMU X', 'IMU Y', 'IMU Theta']]
+                          'IMU Accel X', 'IMU Accel Y', 'IMU Theta', 'IMU Vel Theta']]
 
         # Runtime checks
         self.init_subscribers()
@@ -111,6 +112,9 @@ class Robot():
     def record_data(self):
         # Create writeable data array of position data from
 
+        # Record time
+        t = rospy.get_time()
+
         # Record ground truth data
         x_0 = self.truth_curr.pose.position.x
         y_0= self.truth_curr.pose.position.y
@@ -124,11 +128,24 @@ class Robot():
         x_1 = self.encoder_pos.pose.pose.position.x + self.encoder_offset[0]
         y_1 = self.encoder_pos.pose.pose.position.y + self.encoder_offset[1]
         theta_1 = euler_from_quaternion(quaternion = (
-                                      self.encoder_pos.pose.pose.orientation.x,
-                                      self.encoder_pos.pose.pose.orientation.y,
-                                      self.encoder_pos.pose.pose.orientation.z,
-                                      self.encoder_pos.pose.pose.orientation.w))[2]
-        self.data.append([x_0, y_0, theta_0, x_1, y_1, theta_1])
+                                  self.encoder_pos.pose.pose.orientation.x,
+                                  self.encoder_pos.pose.pose.orientation.y,
+                                  self.encoder_pos.pose.pose.orientation.z,
+                                  self.encoder_pos.pose.pose.orientation.w))[2]
+
+        # Record imu data
+        xacc_2 = self.imu_msg.linear_acceleration.x
+        yacc_2 = self.imu_msg.linear_acceleration.y
+        thetavel_2 = self.imu_msg.angular_velocity.z
+        theta_2 = euler_from_quaternion(quaternion = (
+                                        self.imu_msg.orientation.x,
+                                        self.imu_msg.orientation.y,
+                                        self.imu_msg.orientation.z,
+                                        self.imu_msg.orientation.w))[2]
+        ))
+        self.data.append([t, x_0, y_0, theta_0,
+                         x_1, y_1, theta_1,
+                         xacc_2, yacc_2, theta_2, thetavel_2])
 
     def write_data(self, f, data):
         # Opens given csv file, writes data

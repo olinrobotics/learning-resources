@@ -1,0 +1,15 @@
+<!--
+  @file neato_fullsense.launch
+  @brief Runs teleoperable robot w/ ground truth, encoder, imu
+-->
+<launch>
+
+  <include file="$(find neato_node)/launch/bringup.launch" >
+    <arg name="host" value="192.168.16.85"/>
+  </include>
+
+  <include file="$(find kalman_filter)/launch/apriltags.launch" />
+  <include file="$(find warmup_project)/launch/neato_minimal.launch"/>
+  <include file="$(find razor_imu_9dof)/launch/razor-pub.launch"/>
+  
+</launch>
