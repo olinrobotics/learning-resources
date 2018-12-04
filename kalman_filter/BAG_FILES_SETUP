@@ -36,7 +36,7 @@ You should see position and orientation values for the STAR_pose, and angular an
 
 4. Finally, you get to record the bag file! Run this in a separate terminal: 
 
-`rosbag record -a -x"/camera/(.*)" -o starpose_imu_everything`
+`rosbag record -a -x"/camera/(.*)" -o name_of_bag_file`
 
 Make sure to include the -x"/camera/(.*)". This prevents rosbag from trying to record a bunch of broken camera data. Without this, you'll get a bunch of red errors complaining about compressed camera files.
 
