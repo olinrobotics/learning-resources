@@ -10,7 +10,7 @@
   </include>
 
   <include file="$(find kalman_filter)/launch/apriltags.launch" />
-  <include file="$(find warmup_project)/launch/neato_minimal.launch"/>
+  <!--<include file="$(find warmup_project)/launch/neato_minimal.launch"/>-->
 
 
 
