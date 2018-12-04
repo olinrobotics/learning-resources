@@ -152,6 +152,7 @@ class MarkerProcessor(object):
             STAR_pose = self.tf_listener.transformPose("STAR", p)
             STAR_pose.header.stamp = msg.header.stamp
             self.continuous_pose.publish(STAR_pose)
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         except Exception as inst:
             print("error is", inst)
 
@@ -166,8 +167,10 @@ class MarkerProcessor(object):
                                                   marker.pose.pose.orientation.w))
             angle_diffs = TransformHelpers.angle_diff(euler_angles[0],pi), TransformHelpers.angle_diff(euler_angles[1],0)
             print(angle_diffs, marker.pose.pose.position.z)
+
+            # TODO: Fix recalibration, change upper z-limit back to 3.6
             if (marker.id in self.marker_locators and
-                3.0 <= marker.pose.pose.position.z <= 3.6 and
+                3.0 <= marker.pose.pose.position.z <= 4.0 and
                 fabs(angle_diffs[0]) <= .4 and
                 fabs(angle_diffs[1]) <= .4):
                 print("FOUND IT!")
