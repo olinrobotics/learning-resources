@@ -170,7 +170,7 @@ class MarkerProcessor(object):
 
             # TODO: Fix recalibration, change upper z-limit back to 3.6
             if (marker.id in self.marker_locators and
-                3.0 <= marker.pose.pose.position.z <= 4.0 and
+                3.0 <= marker.pose.pose.position.z <= 3.6 and
                 fabs(angle_diffs[0]) <= .4 and
                 fabs(angle_diffs[1]) <= .4):
                 print("FOUND IT!")
