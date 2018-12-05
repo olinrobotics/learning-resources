@@ -9,7 +9,7 @@
   </include>
 
   <include file="$(find kalman_filter)/launch/apriltags.launch" />
-  <include file="$(find warmup_project)/launch/neato_minimal.launch"/>
+  <node pkg="kalman_filter" type="teleop.py" name="teleop" output="screen" launch-prefix="gnome-terminal --command"/>
   <include file="$(find razor_imu_9dof)/launch/razor-pub.launch"/>
-  
+
 </launch>
