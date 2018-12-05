@@ -22,6 +22,7 @@ from nav_msgs.msg import Odometry       # Encoder message type
 from geometry_msgs.msg import Twist     # Robot command message type
 from geometry_msgs.msg import PoseStamped
 from tf.transformations import euler_from_quaternion
+from sensor_msgs.msg import Imu
 from Gaussian import Gaussian           # gaussian distribution class
 
 '''
@@ -43,25 +44,22 @@ class Robot():
         self.encoder_sub = rospy.Subscriber("/odom", Odometry, self.encoder_cb)
         self.command_sub = rospy.Subscriber("/cmd_vel", Twist, self.command_cb)
         self.truth_sub = rospy.Subscriber("/STAR_pose_continuous", PoseStamped, self.truth_cb)
-        # TODO: imu
+        self.imu_sub = rospy.Subscriber("/imu", Imu, self.imu_cb)
         # TODO: laser
 
         # Data storage variables
-        self.encoder_prev = None
-        self.encoder_pos = None
-        self.encoder_offset = None
-        self.imu_offset = None
+        self.encoder_msg = None
+        self.imu_msg = None
+        self.star_msg = None
         self.command_curr = Twist((0,0,0),(0,0,0))
-        self.truth_curr = None
         self.log_data = log_data
-        print(log_data)
 
         # Initialize kalman filter
 
         # Setup writing to csv file data_file
         if self.log_data:
-            rospy.loginfo("Saving data!")
             self.file_name = self.check_file(f)
+            rospy.loginfo("Logging data to kalman_filter/data/%s", self.file_name)
             self.write_to_file = open(self.file_name, 'w')
             self.data = [['Time',
                           'Ground Truth X', 'Ground Truth Y', 'Ground Truth Theta',
@@ -74,7 +72,7 @@ class Robot():
 
     def encoder_cb(self, msg):
         # update encoder position based on prev_encoder_val
-        self.encoder_pos = msg
+        self.encoder_msg = msg
         return
 
     def command_cb(self, msg):
@@ -84,7 +82,12 @@ class Robot():
 
     def truth_cb(self, msg):
         # update ground truth position
-        self.truth_curr = msg
+        self.star_msg = msg
+        return
+
+    def imu_cb(self, msg):
+        # update imu message
+        self.imu_msg = msg
         return
 
     def check_file(self, f):
@@ -103,8 +106,8 @@ class Robot():
 
         # Return file if it doesn't already exist
         if os.path.isfile( f ):
-            rospy.logerr("File already exists!")
-            sys.exit("File already exists!")
+            rospy.logerr("%s already exists!", f)
+            sys.exit("Quitting program")
         else:
             rospy.loginfo("File passed checks successfully:\n" + f)
             return f
@@ -116,22 +119,22 @@ class Robot():
         t = rospy.get_time()
 
         # Record ground truth data
-        x_0 = self.truth_curr.pose.position.x
-        y_0= self.truth_curr.pose.position.y
+        x_0 = self.star_msg.pose.position.x
+        y_0= self.star_msg.pose.position.y
         theta_0 = euler_from_quaternion(quaternion = (
-                                      self.truth_curr.pose.orientation.x,
-                                      self.truth_curr.pose.orientation.y,
-                                      self.truth_curr.pose.orientation.z,
-                                      self.truth_curr.pose.orientation.w))[2]
+                                      self.star_msg.pose.orientation.x,
+                                      self.star_msg.pose.orientation.y,
+                                      self.star_msg.pose.orientation.z,
+                                      self.star_msg.pose.orientation.w))[2]
 
         # Record encoder data
-        x_1 = self.encoder_pos.pose.pose.position.x
-        y_1 = self.encoder_pos.pose.pose.position.y
+        x_1 = self.encoder_msg.pose.pose.position.x
+        y_1 = self.encoder_msg.pose.pose.position.y
         theta_1 = euler_from_quaternion(quaternion = (
-                                  self.encoder_pos.pose.pose.orientation.x,
-                                  self.encoder_pos.pose.pose.orientation.y,
-                                  self.encoder_pos.pose.pose.orientation.z,
-                                  self.encoder_pos.pose.pose.orientation.w))[2]
+                                  self.encoder_msg.pose.pose.orientation.x,
+                                  self.encoder_msg.pose.pose.orientation.y,
+                                  self.encoder_msg.pose.pose.orientation.z,
+                                  self.encoder_msg.pose.pose.orientation.w))[2]
 
         # Record imu data
         xacc_2 = self.imu_msg.linear_acceleration.x
@@ -142,7 +145,6 @@ class Robot():
                                         self.imu_msg.orientation.y,
                                         self.imu_msg.orientation.z,
                                         self.imu_msg.orientation.w))[2]
-        ))
         self.data.append([t, x_0, y_0, theta_0,
                          x_1, y_1, theta_1,
                          xacc_2, yacc_2, theta_2, thetavel_2])
@@ -157,29 +159,37 @@ class Robot():
     '''
         @brief waits until data variables are initialized
 
-        Checks encoder_pos and truth_curr attributes, prints
+        Checks encoder_msg and star_msg attributes, prints
         status of check every 10s, returns when both are initialized
     '''
     def init_subscribers(self):
         # Halt until receiving messages from all subscribers
-        i = [False, False]
+        i = [0, 0, 0]
         while not rospy.is_shutdown():
 
             # Check for encoder data
-            if not self.encoder_pos == None:
+            if not self.encoder_msg == None:
                 i[0] = True
                 rospy.loginfo_throttle(10, "(10s) Received encoder data")
             else:
                 rospy.logwarn_throttle(10, "(10s) Waiting for encoder data")
 
             # Check for ground truth data
-            if not self.truth_curr  == None:
+            if not self.star_msg  == None:
                 i[1] = True
                 rospy.loginfo_throttle(10, "(10s) Received ground truth data")
             else:
                 rospy.logwarn_throttle(10, "(10s) Waiting for ground truth data")
 
-            if sum(i) == 2:
+            # Check for imu data
+            if not self.imu_msg == None:
+                i[2] = True
+                rospy.loginfo_throttle(10, "(10s) Received imu data")
+            else:
+                rospy.logwarn_throttle(10, "(10s) Waiting for imu data")
+
+            if sum(i) == 3:
+                rospy.loginfo("All sensors initialized")
                 break
 
     def run(self):
