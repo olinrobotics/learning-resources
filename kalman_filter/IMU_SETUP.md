@@ -1,5 +1,5 @@
 # Overview
-The IMU gave us a lot of trouble in this lab. We initially tried to integrate the IMU into the Raspi onboard the Neato. However, this quickly proved to be a lot of work that was not conducive to the learning of the project, so we pivoted to the less permanent solution of taping the IMU to the robot and connecting it to the computer via a long USB extension cable.
+The IMU gave us a lot of trouble in this project. We initially tried to integrate the IMU into the Raspi onboard the Neato. However, this quickly proved to be a lot of work that was not conducive to the learning of the project, so we pivoted to the less permanent solution of taping the IMU to the robot and connecting it to the computer via a long USB extension cable.
 
 # Attempt 1: Raspi Integration
 ### Upload Default Firmware
@@ -26,5 +26,15 @@ edit etc/rc.local
 # Attempt 2: USB Cable
 
 1. Follow step 1 for Attempt 1
-2. Follow step 4.3 in ROS razor_imu_9d0f wiki page (linked from step 1 in Attempt 1) to setup your razor config yaml file.
-3. Run launch file
+2. Calibrate razor following instructions in "Calibration" heading below. Upload new firmware to the razor.
+2. Follow step 4.3 in ROS razor_imu_9d0f wiki page (linked from step 1 in Attempt 1) to setup your razor config yaml file. Input calibration values into `my_razor.yaml`. (note: not sure which set of values takes precedence, so change both)
+3. Run launch file `razor-pub.launch`.
+
+# Calibration
+The ROS wiki razor_imu_9dof page ([link](http://wiki.ros.org/razor_imu_9dof/)) has a section on sensor calibration, underneath the "Sensor Calibration" heading. We calibrated the accelerometer and gyroscope using the methods set out on this page. The calibration values are as listed below:
+
+|   | accel min/max | gyro  |
+|---|---------------|-------|
+| x | -270/254      | -19.5 |
+| y | -267/257      | 22.12 |
+| z | -254/267      | 7.04  |
