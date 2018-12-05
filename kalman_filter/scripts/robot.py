@@ -125,8 +125,8 @@ class Robot():
                                       self.truth_curr.pose.orientation.w))[2]
 
         # Record encoder data
-        x_1 = self.encoder_pos.pose.pose.position.x + self.encoder_offset[0]
-        y_1 = self.encoder_pos.pose.pose.position.y + self.encoder_offset[1]
+        x_1 = self.encoder_pos.pose.pose.position.x
+        y_1 = self.encoder_pos.pose.pose.position.y
         theta_1 = euler_from_quaternion(quaternion = (
                                   self.encoder_pos.pose.pose.orientation.x,
                                   self.encoder_pos.pose.pose.orientation.y,
@@ -159,8 +159,6 @@ class Robot():
 
         Checks encoder_pos and truth_curr attributes, prints
         status of check every 10s, returns when both are initialized
-        Initializes initial offsets between poses of each datatype to
-        normalize logged data
     '''
     def init_subscribers(self):
         # Halt until receiving messages from all subscribers
@@ -183,10 +181,6 @@ class Robot():
 
             if sum(i) == 2:
                 break
-
-        self.encoder_offset = [self.truth_curr.pose.position.x - self.encoder_pos.pose.pose.position.x,
-                               self.truth_curr.pose.position.y - self.encoder_pos.pose.pose.position.y]
-        #TODO(connor): calculate IMU offset
 
     def run(self):
         while not rospy.is_shutdown():
