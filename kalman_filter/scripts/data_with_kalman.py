@@ -22,11 +22,21 @@ class DataWithKalman():
         df = pd.read_csv(self.file_name, index_col=None)
         self.data = df
 
-    def plot_data(self,x,y,y2,y3,ylabel='1',y2label='2',y3label='3'):
-        plt.plot(x,y,label=ylabel)
-        plt.plot(x,y2,label=y2label)
-        plt.plot(x,y3,label=y3label)
+    def plot_data(self, x, ysets, ylabels):
+        '''
+            @brief plots n sets of y-data against x-data
+
+            @param[in] x-data
+            @param[in] list of y-data sets (lengths match x)
+            @param[in] list of y-data labels (length matches ysets length)
+        '''
+        for i in range(len(ysets)):
+            plt.plot(x,ysets[i],label=ylabels[i])
+
         plt.legend()
+        plt.title('Robot Position over Time')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Position (m)')
 
     def print_data(self,name=None):
         # Prints full csv file if column not specified
@@ -86,7 +96,7 @@ class DataWithKalman():
         Y3 = self.generate_model_estimate(X, V)
         Y3 = [val + 2*(y_flipline_x - val) for val in Y3] # Flip data about initial point horiz line
 
-        self.plot_data(X,Y,Y2,Y3,ylabel,y2label,y3label)
+        self.plot_data(X,[Y,Y2,Y3],[ylabel,y2label,y3label])
 
         # run encoder data through kalman filter in one go (not for live use)
         # prior_x = (max(Y)+min(Y))/2             #midpoint of ground truth range
@@ -108,7 +118,7 @@ class DataWithKalman():
         # plot new data
         Y2 = encoder_means
         y2label = "KF: Enc + Model"
-        self.plot_data(X,Y,Y2,Y3,ylabel,y2label,y3label)
+        self.plot_data(X,[Y2],[y2label])
         plt.show()
 
 if __name__ == '__main__':
