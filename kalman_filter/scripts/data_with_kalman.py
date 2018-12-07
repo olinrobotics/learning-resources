@@ -1,24 +1,44 @@
-"""This reads data from a csv and applies a kalman filter over it"""
+#!/usr/bin/env python
+
+'''
+    @file data_with_kalman.py
+    @brief Displays results from kalman filter applied to data in given csv
+
+    @author Charlie Weiss
+'''
+
 import matplotlib.pyplot as plt
 import csv
 import sys
 import pandas as pd
 from kalman_filter_1d import KalmanFilter1D
 from Gaussian import Gaussian
+from csv_functions import *
 
 class DataWithKalman():
     def __init__(self,f='temp'):
-        # name of csv file
-        self.file_name = f
-         # data storage (will be pandas dataframe)
-        self.data = None
+        '''
+            @brief Init kalman filter, csv file to read
+
+            @param csv filename to read from, defaults to temp
+        '''
+
+        self.file_name = check_file(f, 'share', 'r')  # name of csv file
+        self.data = None    # data storage (will be pandas dataframe)
 
         # initialize kalman filter
         self.kf = None
         self.prediction = [] # array of Gaussian tuples
 
     def read_data(self):
-        #stores data in dataframe. Acts like a dict, can call array of values from name of variable
+        '''
+            @brief stores data from file
+
+            Stores csv data in pandas dataframe - acts like a dictionary,
+            can call an array of values from name of variable (1st row of csv)
+
+            @param[out] self.data set to pandas dataframe of csv
+        '''
         df = pd.read_csv(self.file_name, index_col=None)
         self.data = df
 
@@ -39,16 +59,13 @@ class DataWithKalman():
         plt.ylabel('Position (m)')
 
     def print_data(self,name=None):
-        # Prints full csv file if column not specified
-        if not name:
-            print(self.data)
-        else:
-            print(self.data[name])
+        '''
+            @brief print dataset from csv
 
-    def check_keys(self):
-        # Checks the names of the data taken
-        for key in self.data:
-            print(key)
+            @param name of column, print full csv if not set
+        '''
+        if not name: print(self.data)
+        else: print(self.data[name])
 
     def generate_model_estimate(self, time, commands):
         '''
@@ -72,7 +89,7 @@ class DataWithKalman():
             @return list of kalman filter-generated position estimates
         '''
 
-    def run(self):
+    def generate_graph(self):
         self.read_data()
 
         # Unpack data into lists with headers
@@ -116,14 +133,15 @@ class DataWithKalman():
         encoder_variances = [y for (x,y) in self.prediction]
 
         # plot new data
-        Y2 = encoder_means
-        y2label = "KF: Enc + Model"
-        self.plot_data(X,[Y2],[y2label])
+        Y4 = encoder_means
+        y4label = "KF: Enc + Model"
+        self.plot_data(X,[Y4],[y4label])
         plt.show()
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2:
-        node = DataWithKalman(sys.argv[1])
-    else:
-        node = DataWithKalman()
-    node.run()
+
+    # Init DataWithKalman with filename arg
+    if len(sys.argv) == 2: node = DataWithKalman(sys.argv[1])
+    else: node = DataWithKalman()
+
+    node.generate_graph()

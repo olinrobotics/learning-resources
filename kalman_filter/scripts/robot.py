@@ -24,6 +24,7 @@ from geometry_msgs.msg import PoseStamped
 from tf.transformations import euler_from_quaternion
 from sensor_msgs.msg import Imu
 from Gaussian import Gaussian           # gaussian distribution class
+from csv_functions import *             # csv file usage functions
 
 '''
     @brief main robot class for listening to topics, running kf, and logging
@@ -57,7 +58,7 @@ class Robot():
 
         # Setup writing to csv file data_file
         if self.log_data:
-            self.file_name = self.check_file(f)
+            self.file_name = self.check_file(f, "data", 'w')
             rospy.loginfo("Logging data to kalman_filter/data/%s", self.file_name)
             self.write_to_file = open(self.file_name, 'w')
             self.data = [['Time',
@@ -89,28 +90,6 @@ class Robot():
         # update imu message
         self.imu_msg = msg
         return
-
-    def check_file(self, f):
-        # Checks given file for existence, file extension, returns updated file
-
-        # Get path to data folder
-        data_path = os.path.join( os.path.abspath(os.path.dirname(__file__)),
-                                  "../data/" )
-
-        # Add file extension if necessary
-        if not (f[-4:] == ".csv"):
-            f = f + ".csv"
-
-        # Create full filepath
-        f = os.path.join( data_path, f )
-
-        # Return file if it doesn't already exist
-        if os.path.isfile( f ):
-            rospy.logerr("%s already exists!", f)
-            sys.exit("Quitting program")
-        else:
-            rospy.loginfo("File passed checks successfully:\n" + f)
-            return f
 
     def record_data(self):
         # Create writeable data array of position data from
