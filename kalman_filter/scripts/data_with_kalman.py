@@ -46,6 +46,10 @@ class DataWithKalman():
         X = self.data['Time'][:]
         Y = self.data['Ground Truth X'][:]
         Y2 = self.data['Encoder X'][:]
+        # add encoder offset
+        diff = Y[0]-Y2[0]
+        Y2 = [x+diff for x in Y2]
+
         ylabel= "Ground Truth X"
         y2label = "Encoder X"
 
@@ -58,10 +62,11 @@ class DataWithKalman():
         self.prediction.append((prior_x,0))
         self.kf = KalmanFilter1D(prior_x=prior_x)
         Z = Y2                                  # encoder data
+
         for i in range(1, len(Z)):
             z = Z[i-1]                          # current measurement
             dx = (Y[i]-Y[i-1])/(X[i]-X[i-1])    # using delta ground truth/delta t for now
-            R = .001                            # sensor variance
+            R = 100                            # sensor variance
             Q = .001                            # movement variance
             new_pos = self.kf.step(z,dx,R,Q)    # get mean, variance back
             self.prediction.append(new_pos)
