@@ -98,7 +98,7 @@ class DataWithKalman():
         Y =  self.data['Ground Truth X'][:]
         Y2 = self.data['Encoder X'][:]
         ylabel= "Ground Truth X"
-        y2label = "Encoder X"
+        y2label = "Encoder Data"
 
         # Post-process data
         X = [val - X[0] for val in X]           # zero-reference time data
@@ -109,7 +109,7 @@ class DataWithKalman():
         Y2 = [val + 2*(y_flipline_x - val) for val in Y2] # Flip data about initial point horiz line
 
         # Generate model of robot motion
-        y3label = "Model X"
+        y3label = "Model-Only Prediction"
         Y3 = self.generate_model_estimate(X, V)
         Y3 = [val + 2*(y_flipline_x - val) for val in Y3] # Flip data about initial point horiz line
 
@@ -121,11 +121,14 @@ class DataWithKalman():
         self.prediction.append((prior_x,0))
         self.kf = KalmanFilter1D(prior_x=prior_x)
         Z = Y2                                  # encoder data
+        Y4 = [0]*len(Z)                         # kalman filter model estimate
         for i in range(1, len(Z)):
-            z = Z[i-1]                          # current measurement
+            z = Z[i]                          # current measurement
             dx = (Y3[i]-Y3[i-1])/(X[i]-X[i-1])  # delta model / delta t
+            x = self.prediction[i-1]
+            Y4[i] = x[0] + dx
             R = 1                            # sensor variance
-            Q = .001                            # movement variance
+            Q = .01                            # movement variance
             new_pos = self.kf.step(z,dx,R,Q)    # get mean, variance back
             self.prediction.append(new_pos)
 
@@ -133,9 +136,10 @@ class DataWithKalman():
         encoder_variances = [y for (x,y) in self.prediction]
 
         # plot new data
-        Y4 = encoder_means
-        y4label = "KF: Enc + Model"
-        self.plot_data(X,[Y4],[y4label])
+        Y5 = encoder_means
+        y5label = "KF: Enc + Model"
+        plt.plot(X, Y4, 'o', label='KF Model Est')
+        self.plot_data(X,[Y5],[y5label])
         plt.show()
 
 if __name__ == '__main__':
