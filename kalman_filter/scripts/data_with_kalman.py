@@ -4,6 +4,10 @@
     @file data_with_kalman.py
     @brief Displays results from kalman filter applied to data in given csv
 
+    To use, run script with python3 and pass it a string argument representing
+    the desired filename to view. Filename need not have a filetype, does need
+    to be located in learning-resources/kalman_filter/share/.
+
     @author Charlie Weiss
 '''
 
@@ -60,23 +64,24 @@ class DataWithKalman():
 
     def print_data(self,name=None):
         '''
-            @brief print dataset from csv
+            @brief print specified class dataset attribute (from csv)
 
             @param name of column, print full csv if not set
         '''
         if not name: print(self.data)
         else: print(self.data[name])
 
-    def generate_model_estimate(self, time, commands):
+    def generate_model_estimate(self, time, commands, init_pose):
         '''
             @brief Generates pose estimates from dt & vel cmds
 
             @param[in] array of timesteps
             @param[in] array of commanded velocities
-            @return list of position values
+            @param[in] initial position of robot (est)
+            @return array of position values
         '''
         output = [0]*len(time)
-        output[0] = self.data['Ground Truth X'][0] # Initialize position estimate from ground truth
+        output[0] = init_pose
         for i in range(1,len(time)): output[i] = output[i-1] + (time[i]-time[i-1])*commands[i]
         return output
 
@@ -110,7 +115,7 @@ class DataWithKalman():
 
         # Generate model of robot motion
         y3label = "Model-Only Prediction"
-        Y3 = self.generate_model_estimate(X, V)
+        Y3 = self.generate_model_estimate(X, V, Y[0])
         Y3 = [val + 2*(y_flipline_x - val) for val in Y3] # Flip data about initial point horiz line
 
         self.plot_data(X,[Y,Y2,Y3],[ylabel,y2label,y3label])
