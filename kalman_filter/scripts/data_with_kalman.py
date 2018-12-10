@@ -46,16 +46,17 @@ class DataWithKalman():
         df = pd.read_csv(self.file_name, index_col=None)
         self.data = df
 
-    def plot_data(self, x, ysets, ylabels):
+    def plot_data(self, x, ysets, ylabels, types):
         '''
             @brief plots n sets of y-data against x-data
 
             @param[in] x-data
             @param[in] list of y-data sets (lengths match x)
             @param[in] list of y-data labels (length matches ysets length)
+            @param[in] plot type string (-=line, o=point, x=tick)
         '''
         for i in range(len(ysets)):
-            plt.plot(x,ysets[i],label=ylabels[i])
+            plt.plot(x,ysets[i], types[i], label=ylabels[i])
 
         plt.legend()
         plt.title('Robot Position over Time')
@@ -153,8 +154,9 @@ class DataWithKalman():
 
         # plot new data
         Y5 = encoder_means
-        plt.plot(X, Y4, 'o', label='KF Model Est')
-        self.plot_data(X,[Y, Y2, Y3, Y5],[ylabel, y2label, y3label, y5label])
+        self.plot_data(X,[Y, Y2, Y3, Y4, Y5],
+                         [ylabel, y2label, y3label, y4label, y5label],
+                         "---o-")
         plt.show()
 
 if __name__ == '__main__':
