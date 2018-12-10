@@ -24,6 +24,7 @@ from geometry_msgs.msg import PoseStamped
 from tf.transformations import euler_from_quaternion
 from sensor_msgs.msg import Imu
 from Gaussian import Gaussian           # gaussian distribution class
+from csv_functions import *             # csv file usage functions
 
 '''
     @brief main robot class for listening to topics, running kf, and logging
@@ -47,24 +48,24 @@ class Robot():
         self.imu_sub = rospy.Subscriber("/imu", Imu, self.imu_cb)
         # TODO: laser
 
+        self.log_data = log_data
+
         # Data storage variables
         self.encoder_msg = None
         self.imu_msg = None
         self.star_msg = None
-        self.command_curr = Twist((0,0,0),(0,0,0))
-        self.log_data = log_data
-
-        # Initialize kalman filter
+        self.command_msg = None
 
         # Setup writing to csv file data_file
         if self.log_data:
-            self.file_name = self.check_file(f)
+            self.file_name = self.check_file(f, "data", 'w')
             rospy.loginfo("Logging data to kalman_filter/data/%s", self.file_name)
             self.write_to_file = open(self.file_name, 'w')
             self.data = [['Time',
                           'Ground Truth X', 'Ground Truth Y', 'Ground Truth Theta',
                           'Encoder X', 'Encoder Y', 'Encoder Theta',
-                          'IMU Accel X', 'IMU Accel Y', 'IMU Theta', 'IMU Vel Theta']]
+                          'IMU Accel X', 'IMU Accel Y', 'IMU Theta', 'IMU Vel Theta',
+                          'Command Lin Vel', 'Command Ang Vel']]
 
         # Runtime checks
         self.init_subscribers()
@@ -77,7 +78,7 @@ class Robot():
 
     def command_cb(self, msg):
         # update current command
-        self.command_curr = msg
+        self.command_msg = msg
         return
 
     def truth_cb(self, msg):
@@ -89,28 +90,6 @@ class Robot():
         # update imu message
         self.imu_msg = msg
         return
-
-    def check_file(self, f):
-        # Checks given file for existence, file extension, returns updated file
-
-        # Get path to data folder
-        data_path = os.path.join( os.path.abspath(os.path.dirname(__file__)),
-                                  "../data/" )
-
-        # Add file extension if necessary
-        if not (f[-4:] == ".csv"):
-            f = f + ".csv"
-
-        # Create full filepath
-        f = os.path.join( data_path, f )
-
-        # Return file if it doesn't already exist
-        if os.path.isfile( f ):
-            rospy.logerr("%s already exists!", f)
-            sys.exit("Quitting program")
-        else:
-            rospy.loginfo("File passed checks successfully:\n" + f)
-            return f
 
     def record_data(self):
         # Create writeable data array of position data from
@@ -145,9 +124,14 @@ class Robot():
                                         self.imu_msg.orientation.y,
                                         self.imu_msg.orientation.z,
                                         self.imu_msg.orientation.w))[2]
+
+        linvel_3 = self.command_msg.linear.x
+        angvel_3 = self.command_msg.angular.z
+
         self.data.append([t, x_0, y_0, theta_0,
                          x_1, y_1, theta_1,
-                         xacc_2, yacc_2, theta_2, thetavel_2])
+                         xacc_2, yacc_2, theta_2, thetavel_2,
+                         linvel_3, angvel_3])
 
     def write_data(self, f, data):
         # Opens given csv file, writes data
@@ -164,7 +148,7 @@ class Robot():
     '''
     def init_subscribers(self):
         # Halt until receiving messages from all subscribers
-        i = [0, 0, 0]
+        i = [0, 0, 0, 0]
         while not rospy.is_shutdown():
 
             # Check for encoder data
@@ -188,7 +172,14 @@ class Robot():
             else:
                 rospy.logwarn_throttle(10, "(10s) Waiting for imu data")
 
-            if sum(i) == 3:
+            # Check for imu data
+            if not self.command_msg == None:
+                i[3] = True
+                rospy.loginfo_throttle(10, "(10s) Received command data")
+            else:
+                rospy.logwarn_throttle(10, "(10s) Waiting for command data")
+
+            if sum(i) == 4:
                 rospy.loginfo("All sensors initialized")
                 break
 
