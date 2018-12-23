@@ -119,13 +119,7 @@ class DataWithKalman():
         V =  self.data['Command Lin Vel'][:]
         Y =  self.data['Ground Truth X'][:]
         Y2 = self.data['Encoder X'][:]
-<<<<<<< HEAD
-        # add encoder offset
-        diff = Y[0]-Y2[0]
-        Y2 = [x+diff for x in Y2]
-=======
         Y3 = self.generate_model_estimate(X, V, Y[0]) # Create model
->>>>>>> 2066b63cb4b3c418bc21f75aeeba04218b5c7151
 
         ylabel= "Ground Truth X"
         y2label = "Encoder Data"
@@ -144,13 +138,6 @@ class DataWithKalman():
         self.prediction.append((prior_x,0))
         self.kf = KalmanFilter1D(prior_x=prior_x)
         Z = Y2                                  # encoder data
-<<<<<<< HEAD
-
-        for i in range(1, len(Z)):
-            z = Z[i]                          # current measurement
-            dx = (Y3[i]-Y3[i-1])/(X[i]-X[i-1])  # delta model / delta t
-            R = .1                            # sensor variance
-=======
         Y4 = [0]*len(Z)                         # kalman filter model estimate
         for i in range(1, len(Z)):
             z = Z[i]                          # current measurement
@@ -158,7 +145,6 @@ class DataWithKalman():
             x = self.prediction[i-1]
             Y4[i] = x[0] + dx
             R = 1                            # sensor variance
->>>>>>> 2066b63cb4b3c418bc21f75aeeba04218b5c7151
             Q = .01                            # movement variance
             new_pos = self.kf.step(z,dx,R,Q)    # get mean, variance back
             self.prediction.append(new_pos)
