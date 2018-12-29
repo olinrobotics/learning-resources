@@ -15,7 +15,9 @@ import matplotlib.pyplot as plt
 import csv
 import sys
 import pandas as pd
+import numpy as np
 from kalman_filter_1d import KalmanFilter1D
+from kalman_filter_nd import KalmanFilterND
 from Gaussian import Gaussian
 from csv_functions import *
 
@@ -46,7 +48,7 @@ class DataWithKalman():
         df = pd.read_csv(self.file_name, index_col=None)
         self.data = df
 
-    def plot_data(self, x, ysets, ylabels, types):
+    def plot_data(self, x, ysets, ylabels, types, title='Robot Position over Time', xlabel='Time (s)', ylabel='Position (m)'):
         '''
             @brief plots n sets of y-data against x-data
 
@@ -54,14 +56,17 @@ class DataWithKalman():
             @param[in] list of y-data sets (lengths match x)
             @param[in] list of y-data labels (length matches ysets length)
             @param[in] plot type string (-=line, o=point, x=tick)
+            @param[in] plot title, has a default
+            @param[in] x axis label, defaults to time
+            @param[in] y axis label, defaults to position
         '''
         for i in range(len(ysets)):
             plt.plot(x,ysets[i], types[i], label=ylabels[i])
 
         plt.legend()
-        plt.title('Robot Position over Time')
-        plt.xlabel('Time (s)')
-        plt.ylabel('Position (m)')
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
 
     def print_data(self,name=None):
         '''
@@ -71,6 +76,17 @@ class DataWithKalman():
         '''
         if not name: print(self.data)
         else: print(self.data[name])
+
+    def generate_noise(self, gaussian, dataset):
+        '''
+            @brief adds specified gaussian noise to dataset
+
+            @param[in] (mean, var) to define gaussian noise profile
+            @param[in] dataset to which to add noise
+            @returns dataset with added noise
+        '''
+
+        return [datum + np.random.normal(gaussian[0], gaussian[1]) for datum in dataset]
 
     def generate_model_estimate(self, time, commands, init_pose):
         '''
@@ -86,14 +102,43 @@ class DataWithKalman():
         for i in range(1,len(time)): output[i] = output[i-1] + (time[i]-time[i-1])*commands[i]
         return output
 
-    def generate_kalman_estimate(self, model, sensor):
+    def generate_kalman_estimate(self, us, zs, prior):
         '''
             @brief Generates kalman filter estimate given model, sensor
 
-            @param[in] list of model estimates
-            @param[in] list of sensor readings
-            @return list of kalman filter-generated position estimates
+            model and sensors lists should be the same length, prior should have
+            2*1 vector of init pos, vel, 2*2 matrix of init covariance
+            TODO(connor): automate and extend returning to a single scaleable
+            entity
+
+            @param[in] list of commands us
+            @param[in] list of sensor readings zs
+            @param[in] prior init (x, P)
+            @return list of kf-gen pos estimates
+            @return list of kf-gen pos variances
+            @return list of kf-gen vel estimates
+            @return list of kf-gen vel variances
+            @return list of kf-gen pos model predictions
         '''
+        kf = KalmanFilterND(prior)
+        xs = [0] * len(zs)
+        pxs = [0] * len(zs)
+        vs = [0] * len(zs)
+        pvs = [0] * len(zs)
+        x_bars = [0] * len(zs)
+
+        # Run kalman filter
+        for i in range(0, len(zs)):
+            u = np.array([[2*us[i]]])
+            z = np.array([[zs[i]]])
+            kf.step(u, z, False)
+            xs[i] = kf.x[0]
+            pxs[i] = kf.P[0,0]
+            vs[i] = kf.x[1]
+            pvs[i] = kf.P[1,1]
+            x_bars[i] = kf.x_bar[0]
+
+        return xs, pxs, vs, pvs, x_bars
 
     def post_process(self, data, offset=0.0, flip_pt=None):
         '''
@@ -116,20 +161,31 @@ class DataWithKalman():
 
         # Unpack data into lists with headers
         X =  self.data['Time'][:]
-        V =  self.data['Command Lin Vel'][:]
+        U =  self.data['Command Lin Vel'][:]
+        print(U[0])
+        print(U[1])
+        print(U[2])
         Y =  self.data['Ground Truth X'][:]
         Y2 = self.data['Encoder X'][:]
-        Y3 = self.generate_model_estimate(X, V, Y[0]) # Create model
+        Y3 = self.generate_model_estimate(X, U, Y[0]) # Create model
+        Y2_noisy = self.generate_noise((0, 0.5), Y2)
 
+        ulabel = "Linear Velocity Commands"
         ylabel= "Ground Truth X"
-        y2label = "Encoder Data"
+        y2label = "Sensor Readings z"
+        y2noisylabel = "Noisy Sensor Readings"
         y3label = "Model-Only Prediction"
-        y4label = 'KF Model Est'
-        y5label = "KF: Enc + Model"
+        y4label = "KF 1-dim Model Estimate"
+        y5label = "KF 1-dim Pose Estimate"
+        y6label = "KF 2-dim Pose Estimate X"
+        v_k2_label = "KF 2-dim Vel Estimate"
+        x_k2model_label = "KF 2-dim Pose Prediction x_bar"
 
         # Post-process data
         X = self.post_process(X, offset=-X[0])                       # Time
-        Y2 = self.post_process(Y2, offset=Y[0]-Y2[0], flip_pt=Y2[0]) # Encoder
+        Y2 = self.post_process(Y2, offset = Y[0] - Y2[0])            # Encoder w/o flip
+        Y2_noisy = self.post_process(Y2_noisy, offset = Y[0] - Y2_noisy[0])
+        #Y2 = self.post_process(Y2, offset=Y[0]-Y2[0], flip_pt=Y2[0]) # Encoder
         Y3 = self.post_process(Y3, flip_pt = Y[0])                   # Model
 
         # run encoder data through kalman filter in one go (not for live use)
@@ -149,14 +205,28 @@ class DataWithKalman():
             new_pos = self.kf.step(z,dx,R,Q)    # get mean, variance back
             self.prediction.append(new_pos)
 
-        encoder_means = [x for (x,y) in self.prediction]
-        encoder_variances = [y for (x,y) in self.prediction]
+        Y5 = [x for (x,y) in self.prediction]
+        Y5Var = [y for (x,y) in self.prediction]
+
+        x_init = np.array([[Y[0],0]]).T
+        P_init = np.array([[0.01,0],
+                           [0,0.01]])
+        Y6, Y6Var, v_k2, vvar_k2, x_k2model = self.generate_kalman_estimate(U, Y2, (x_init, P_init))
+        Y7, Y7Var, V7, V7Var, X7 = self.generate_kalman_estimate(U, Y2_noisy, (x_init, P_init))
 
         # plot new data
-        Y5 = encoder_means
-        self.plot_data(X,[Y, Y2, Y3, Y4, Y5],
-                         [ylabel, y2label, y3label, y4label, y5label],
-                         "---o-")
+        self.plot_data(X, [U], ["Velocity Commands U"], "o",
+                       ylabel="Velocity in X (m/s)")
+        plt.show()
+        self.plot_data(X,[Y2, Y6, x_k2model],
+                         ["Encoder Data z", "2D KF Estimate x", "Model Estimate x_bar"],
+                         "o-*", ylabel = "Position in X (m)")
+        plt.show()
+
+        # Plot velocities
+        self.plot_data(X, [Y2_noisy, Y7, X7],
+                      ["Noisy Encoder Data z", "2D KF Estimate x", "Model Estimate x_bar"],
+                      "o-*", ylabel = "Position in X (m)")
         plt.show()
 
 if __name__ == '__main__':
