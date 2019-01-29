@@ -4,7 +4,7 @@ system that utilizes april tags on ceiling tiles to localize a Neato botvac modi
 <img src="https://github.com/olinrobotics/learning-resources/blob/kalman/kalman_filter/images/neato_camera.jpg" width=250/>
 
 ## Physical Setup Procedure
-We printed out six 17.5 in * 17.5 in tags from the _______ april tag set and placed them on ceiling tiles around the room. We were limited to ceiling
+We printed out six 17.5 in * 17.5 in tags from the 36h11 april tag set (link)[https://github.com/AprilRobotics/apriltag-imgs] and placed them on ceiling tiles around the room. We were limited to ceiling
 tiles that could be fully removed, because successfully attaching the tags required taping to the backside of the tiles. All tags 
 were placed with the x-axis pointed away from the doorway and the y-axis pointed towards the rear of the room. Many ceiling tiles
 cannot be fully removed due to piping.  
